@@ -1,147 +1,134 @@
-/* Base Styles */
+/* style.css - refined with micro-interactions & responsiveness */
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;900&display=swap');
+
+/* Base */
 body {
     font-family: 'Work Sans', sans-serif;
 }
 
-/* Typography */
 .serif-heading {
     font-family: 'Georgia', serif;
+    font-weight: 300;
+    letter-spacing: -0.02em;
 }
 
-/* Custom Scrollbar Hide */
+/* Hide scrollbar */
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }
-
 .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
 
-/* Smooth Scrolling */
+/* Smooth scroll */
 html {
     scroll-behavior: smooth;
 }
 
-/* Custom Focus Styles */
-input:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(23, 207, 84, 0.3);
+/* Focus ring */
+input:focus, button:focus-visible {
+    outline: 2px solid #17cf54;
+    outline-offset: 2px;
 }
 
-/* Animation Utilities */
-@keyframes fadeIn {
+/* selection */
+::selection {
+    background-color: #17cf5480;
+    color: #112116;
+}
+
+/* image loading bg */
+.bg-cover {
+    background-color: #e2e8f0;
+}
+
+/* dark mode transitions */
+* {
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* mobile drawer */
+#mobile-drawer {
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* back to top */
+#back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* product card quick add */
+.group:hover .shadow-lg {
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+}
+
+/* newsletter icon */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+/* category overlay text */
+.group:hover .translate-y-4 {
+    transform: translateY(0);
+}
+
+/* floating animation for badge */
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(3deg); }
+    50% { transform: translateY(-12px) rotate(3deg); }
+}
+.animate-float {
+    animation: float 5s ease-in-out infinite;
+}
+
+/* subtle pulse for hero background */
+@keyframes pulse-subtle {
+    0%, 100% { transform: scale(1.05); }
+    50% { transform: scale(1.08); }
+}
+.animate-pulse-subtle {
+    animation: pulse-subtle 10s ease-in-out infinite;
+}
+
+/* slide up keyframe */
+@keyframes slideUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(40px);
     }
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
-
-.animate-fade-in {
-    animation: fadeIn 0.6s ease-out forwards;
+.animate-slide-up {
+    animation: slideUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Custom Selection Color */
-::selection {
-    background-color: #17cf54;
-    color: #112116;
+/* ensure images cover well */
+img {
+    object-fit: cover;
 }
 
-/* Image Loading Placeholder */
-.bg-cover {
-    background-color: #e2e8f0;
-}
-
-/* Dark Mode Transitions */
-body,
-.bg-background-light,
-.bg-background-dark {
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Button Hover Effects */
-button {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Link Underline Animation */
-a {
-    position: relative;
-}
-
-nav a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -4px;
-    left: 0;
-    background-color: #17cf54;
-    transition: width 0.3s ease;
-}
-
-nav a:hover::after {
-    width: 100%;
-}
-
-/* Product Card Hover Lift */
-.group:hover .shadow-sm {
-    transform: translateY(-4px);
-}
-
-/* Gradient Text Utility */
-.text-gradient {
-    background: linear-gradient(135deg, #17cf54 0%, #0ea5e9 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-/* Glass Morphism */
-.glass {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Loading Skeleton Animation */
-@keyframes shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
-}
-
-.skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-}
-
-/* Responsive Typography Scale */
+/* mobile typography */
 @media (max-width: 640px) {
     .serif-heading {
         font-size: 2.5rem;
     }
 }
 
-/* Print Styles */
-@media print {
-    header,
-    footer,
-    .no-print {
-        display: none;
-    }
+/* glass effect */
+.glass {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
 
-    body {
-        background: white;
-        color: black;
+/* print */
+@media print {
+    header, footer, .no-print, #back-to-top, #mobile-drawer {
+        display: none !important;
     }
 }

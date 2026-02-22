@@ -1,266 +1,178 @@
-// All Things Home - Main JavaScript File
+// site.js – enhanced interactions & smoothness
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all modules
+document.addEventListener('DOMContentLoaded', () => {
     initDarkMode();
     initScrollEffects();
     initCartFunctionality();
     initNewsletterForm();
-    initLazyLoading();
     initMobileMenu();
+    initBackToTop();
+    initImageLazyLoad();
+    initAddToCartButtons();
 });
 
-// Dark Mode Toggle
+// DARK MODE (with toggle)
 function initDarkMode() {
-    // Check for saved preference or system preference
     const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const savedTheme = localStorage.getItem('theme');
+    const toggleBtn = document.getElementById('dark-mode-toggle');
 
     if (savedTheme === 'dark' || (!savedTheme && darkModeMediaQuery.matches)) {
         document.documentElement.classList.add('dark');
     }
 
-    // Optional: Add toggle button functionality
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    if (darkModeToggle) {
-        darkModeToggle.addEventListener('click', () => {
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
     }
 
-    // Listen for system theme changes
     darkModeMediaQuery.addEventListener('change', (e) => {
         if (!localStorage.getItem('theme')) {
-            if (e.matches) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
+            document.documentElement.classList.toggle('dark', e.matches);
         }
     });
 }
 
-// Scroll Effects & Animations
+// SCROLL REVEAL (sections fade in)
 function initScrollEffects() {
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-    };
-
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('animate-fade-in');
+                entry.target.classList.add('animate-slide-up');
                 observer.unobserve(entry.target);
             }
         });
-    }, observerOptions);
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-    // Observe sections for fade-in animation
     document.querySelectorAll('section').forEach(section => {
         section.style.opacity = '0';
         observer.observe(section);
     });
 
-    // Sticky header shadow on scroll
-    let lastScroll = 0;
+    // header shadow on scroll
     const header = document.querySelector('header');
-
     window.addEventListener('scroll', () => {
-        const currentScroll = window.pageYOffset;
-
-        if (currentScroll > 50) {
-            header.classList.add('shadow-lg');
-        } else {
-            header.classList.remove('shadow-lg');
-        }
-
-        lastScroll = currentScroll;
+        header.classList.toggle('shadow-lg', window.scrollY > 20);
     });
 }
 
-// Shopping Cart Functionality
+// CART BADGE (with animation)
 function initCartFunctionality() {
-    let cartCount = 2; // Initial count from HTML
-    const cartBadge = document.querySelector('.material-symbols-outlined[data-badge]');
-    const addToCartButtons = document.querySelectorAll('.group button');
+    let cartCount = 2; // from initial badge
+    const badge = document.querySelector('.absolute.-top-0.5.-right-0.5');
 
-    addToCartButtons.forEach(button => {
-        if (button.querySelector('.material-symbols-outlined')?.textContent === 'add_shopping_cart') {
-            button.addEventListener('click', (e) => {
-                e.stopPropagation();
-                addToCart();
-            });
-        }
-    });
-
-    function addToCart() {
+    window.addToCart = () => {
         cartCount++;
-        updateCartBadge();
-        showNotification('Item added to cart!');
-    }
-
-    function updateCartBadge() {
-        const badge = document.querySelector('.absolute.top-1.right-1');
         if (badge) {
             badge.textContent = cartCount;
             badge.classList.add('scale-125');
             setTimeout(() => badge.classList.remove('scale-125'), 200);
         }
-    }
-
-    // Remove item from cart (for future use)
-    window.removeFromCart = function() {
-        if (cartCount > 0) {
-            cartCount--;
-            updateCartBadge();
-        }
+        showNotification('Item added to cart', 'success');
     };
 }
 
-// Newsletter Form Handling
+// NEWSLETTER with validation
 function initNewsletterForm() {
     const form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = form.querySelector('input[type="email"]').value;
-
-            if (validateEmail(email)) {
-                // Simulate API call
-                showNotification('Thank you for subscribing!', 'success');
-                form.reset();
-            } else {
-                showNotification('Please enter a valid email address.', 'error');
-            }
-        });
-    }
-}
-
-// Email Validation
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-}
-
-// Lazy Loading Images
-function initLazyLoading() {
-    const images = document.querySelectorAll('div[data-alt]');
-
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const div = entry.target;
-                // Add loaded class for any additional styling
-                div.classList.add('loaded');
-                observer.unobserve(div);
-            }
-        });
+    if (!form) return;
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = form.querySelector('input[type="email"]').value;
+        if (/^\S+@\S+\.\S+$/.test(email)) {
+            showNotification('✨ Thanks for subscribing!', 'success');
+            form.reset();
+        } else {
+            showNotification('Please enter a valid email', 'error');
+        }
     });
-
-    images.forEach(img => imageObserver.observe(img));
 }
 
-// Mobile Menu Toggle
+// MOBILE DRAWER
 function initMobileMenu() {
-    // Create mobile menu button if it doesn't exist
-    const nav = document.querySelector('nav');
-    const header = document.querySelector('header > div');
+    const trigger = document.getElementById('mobile-menu-trigger');
+    const drawer = document.getElementById('mobile-drawer');
+    const closeBtn = document.getElementById('close-drawer');
+    if (!trigger || !drawer) return;
 
-    // Mobile menu button (hidden on desktop)
-    const mobileMenuBtn = document.createElement('button');
-    mobileMenuBtn.className = 'md:hidden p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors';
-    mobileMenuBtn.innerHTML = '<span class="material-symbols-outlined">menu</span>';
-    mobileMenuBtn.setAttribute('aria-label', 'Toggle menu');
+    trigger.addEventListener('click', () => {
+        drawer.classList.remove('translate-x-full');
+    });
 
-    // Insert before utility icons
-    const utilityIcons = document.querySelector('.flex.items-center.gap-6');
-    if (utilityIcons && !document.querySelector('.md\\:hidden.p-2')) {
-        header.insertBefore(mobileMenuBtn, utilityIcons);
-    }
+    const closeDrawer = () => drawer.classList.add('translate-x-full');
+    closeBtn?.addEventListener('click', closeDrawer);
 
-    mobileMenuBtn.addEventListener('click', () => {
-        nav.classList.toggle('hidden');
-        nav.classList.toggle('absolute');
-        nav.classList.toggle('top-20');
-        nav.classList.toggle('left-0');
-        nav.classList.toggle('w-full');
-        nav.classList.toggle('bg-background-light');
-        nav.classList.toggle('dark:bg-background-dark');
-        nav.classList.toggle('p-6');
-        nav.classList.toggle('shadow-lg');
-        nav.classList.toggle('flex-col');
-        nav.classList.toggle('gap-4');
+    // close on outside click? we can also close when clicking a link
+    drawer.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', closeDrawer);
     });
 }
 
-// Notification System
+// BACK TO TOP
+function initBackToTop() {
+    const btn = document.getElementById('back-to-top');
+    if (!btn) return;
+    window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.scrollY > 500);
+    });
+    btn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+// NOTIFICATION TOAST
 function showNotification(message, type = 'default') {
-    // Remove existing notifications
     const existing = document.querySelector('.notification-toast');
     if (existing) existing.remove();
 
-    const notification = document.createElement('div');
-    notification.className = `notification-toast fixed bottom-6 right-6 px-6 py-4 rounded-lg shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 ${
-        type === 'success' ? 'bg-primary text-slate-900' :
-        type === 'error' ? 'bg-red-500 text-white' :
-        'bg-slate-900 text-white'
+    const toast = document.createElement('div');
+    toast.className = `notification-toast fixed bottom-6 left-1/2 -translate-x-1/2 px-8 py-4 rounded-2xl shadow-2xl z-50 text-sm font-medium backdrop-blur-md transition-all duration-500 translate-y-20 opacity-0 ${
+        type === 'success' ? 'bg-primary/90 text-slate-900' :
+        type === 'error' ? 'bg-red-500/90 text-white' : 'bg-slate-900/90 text-white'
     }`;
-    notification.textContent = message;
-
-    document.body.appendChild(notification);
-
-    // Animate in
+    toast.textContent = message;
+    document.body.appendChild(toast);
     requestAnimationFrame(() => {
-        notification.classList.remove('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-20', 'opacity-0');
     });
-
-    // Remove after 3 seconds
     setTimeout(() => {
-        notification.classList.add('translate-y-20', 'opacity-0');
-        setTimeout(() => notification.remove(), 300);
+        toast.classList.add('translate-y-20', 'opacity-0');
+        setTimeout(() => toast.remove(), 500);
     }, 3000);
 }
 
-// Smooth Scroll for Anchor Links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
+// LAZY LOAD (images already loaded, but we can add effect)
+function initImageLazyLoad() {
+    const images = document.querySelectorAll('img');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('loaded');
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    images.forEach(img => observer.observe(img));
+}
+
+// ADD TO CART BUTTONS
+function initAddToCartButtons() {
+    document.querySelectorAll('.group button').forEach(btn => {
+        if (btn.querySelector('.material-symbols-outlined')?.textContent.includes('add_shopping_cart')) {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                window.addToCart?.();
+                // optional: flying animation
+                const icon = btn.querySelector('.material-symbols-outlined');
+                icon?.classList.add('scale-150', 'text-primary');
+                setTimeout(() => icon?.classList.remove('scale-150', 'text-primary'), 200);
             });
         }
     });
-});
+}
 
-// Product Quick View (placeholder for future functionality)
-window.openQuickView = function(productId) {
-    console.log('Opening quick view for product:', productId);
-    // Implementation for quick view modal
-};
-
-// Search Functionality (placeholder)
-window.handleSearch = function(query) {
-    console.log('Searching for:', query);
-    // Implementation for search
-};
-
-// Export functions for global access
-window.AllThingsHome = {
-    addToCart: () => {
-        const event = new Event('click');
-        document.querySelector('.group button')?.dispatchEvent(event);
-    },
-    showNotification,
-    toggleDarkMode: () => {
-        document.documentElement.classList.toggle('dark');
-        const isDark = document.documentElement.classList.contains('dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    }
-};
+// Global exports
+window.AllThingsHome = { showNotification };
