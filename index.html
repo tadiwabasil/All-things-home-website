@@ -3,8 +3,10 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>All Things Home | High-End Kitchenware</title>
+    <title>All Things Home · heritage kitchenware</title>
+    <!-- Tailwind + plugins -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google fonts & icons -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="style.css"/>
@@ -30,245 +32,294 @@
                         "xl": "0.75rem",
                         "full": "9999px"
                     },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-subtle': 'pulse-subtle 3s infinite',
+                        'slide-up': 'slideUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'pulse-subtle': {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.85 },
+                        },
+                        slideUp: {
+                            from: { opacity: 0, transform: 'translateY(40px)' },
+                            to: { opacity: 1, transform: 'translateY(0)' },
+                        }
+                    },
                 },
             },
         }
     </script>
 </head>
-<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
-    <!-- Top Navigation Bar -->
-    <header class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <!-- Logo -->
-            <div class="flex items-center gap-3">
-                <div class="text-primary">
-                    <span class="material-symbols-outlined text-4xl">skillet</span>
-                </div>
-                <h1 class="text-xl font-black tracking-tighter uppercase text-slate-900 dark:text-white">All Things Home</h1>
-            </div>
-            <!-- Main Nav -->
-            <nav class="hidden md:flex items-center gap-10">
-                <a class="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#">Shop</a>
-                <a class="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#">Collections</a>
-                <a class="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#">About</a>
-                <a class="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#">Recipes</a>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased selection:bg-primary/30 dark:selection:bg-primary/40">
+
+    <!-- ===== HEADER (elevated) ===== -->
+    <header class="sticky top-0 z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+            <!-- Logo + brand (animated) -->
+            <a href="#" class="flex items-center gap-2 group">
+                <span class="material-symbols-outlined text-primary text-4xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">skillet</span>
+                <h1 class="text-xl font-black tracking-tighter uppercase text-slate-900 dark:text-white">All Things <span class="text-primary">Home</span></h1>
+            </a>
+
+            <!-- Desktop navigation (centered) -->
+            <nav class="hidden md:flex items-center gap-8 lg:gap-12 absolute left-1/2 -translate-x-1/2">
+                {['Shop', 'Collections', 'About', 'Recipes'].map(item => (
+                    <a key={item} href="#" class="text-sm font-medium uppercase tracking-widest text-slate-700 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full">{item}</a>
+                ))}
             </nav>
-            <!-- Utility Icons -->
-            <div class="flex items-center gap-6">
-                <button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+
+            <!-- Right icons (with dark mode toggle) -->
+            <div class="flex items-center gap-3 sm:gap-5">
+                <button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" aria-label="Search">
                     <span class="material-symbols-outlined">search</span>
                 </button>
-                <button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                <button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" aria-label="Account">
                     <span class="material-symbols-outlined">person</span>
                 </button>
-                <button class="p-2 relative hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                <!-- Dark mode toggle -->
+                <button id="dark-mode-toggle" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" aria-label="Toggle theme">
+                    <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+                    <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
+                </button>
+                <!-- Cart -->
+                <button class="p-2 relative hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" aria-label="Cart">
                     <span class="material-symbols-outlined">shopping_bag</span>
-                    <span class="absolute top-1 right-1 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">2</span>
+                    <span class="absolute -top-0.5 -right-0.5 bg-primary text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full">2</span>
+                </button>
+                <!-- Mobile menu trigger -->
+                <button id="mobile-menu-trigger" class="md:hidden p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" aria-label="Menu">
+                    <span class="material-symbols-outlined">menu</span>
                 </button>
             </div>
         </div>
     </header>
 
+    <!-- Mobile menu drawer (hidden by default) -->
+    <div id="mobile-drawer" class="fixed inset-0 z-50 bg-background-light dark:bg-background-dark translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] md:hidden">
+        <div class="flex justify-end p-5">
+            <button id="close-drawer" class="p-3"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <nav class="flex flex-col items-center gap-8 text-2xl font-medium mt-12">
+            <a href="#" class="hover:text-primary transition">Shop</a>
+            <a href="#" class="hover:text-primary transition">Collections</a>
+            <a href="#" class="hover:text-primary transition">About</a>
+            <a href="#" class="hover:text-primary transition">Recipes</a>
+        </nav>
+    </div>
+
     <main>
-        <!-- Hero Section -->
-        <section class="relative h-[85vh] w-full overflow-hidden">
-            <div class="absolute inset-0 bg-cover bg-center" data-alt="Modern minimalist kitchen with marble countertops and copper pans" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('https://lh3.googleusercontent.com/aida-public/AB6AXuB4309BMiUrqrg3M3L2fhre8QAjdst9jbo59riO_02Gi_ujpjB2gWsorbDh5GKP8pbcz0A1SGwZ6J_9PmPbYkMk9J04mjke8J2uA6q13qNtnYIpHQMekZhoKhfeilDWiOLlFvxoKsbkwRURK5LYtNkAMc-K4pRxP3v2cghUpk49DUqAeqIdU_5N_jaGsq_QyQ-aLrz75rBUxom3QTfRV7fZ1VMV-NI_Y4gqzyLwEYB7EoJcnQub5Eq8TblNtzrUnJAwzf2fqXFHuA');">
+        <!-- ===== HERO SECTION (cinematic, with floating badge) ===== -->
+        <section class="relative h-[90vh] min-h-[700px] w-full overflow-hidden">
+            <!-- background with parallax feel -->
+            <div class="absolute inset-0 bg-black/40 z-10"></div>
+            <div class="absolute inset-0 bg-cover bg-center scale-105 animate-pulse-subtle transition-transform duration-[10s] hover:scale-110"
+                 style="background-image: url('https://images.unsplash.com/photo-1556909212-d5b604d0c90d?q=80&w=2070&auto=format&fit=crop'); background-position: 50% 30%;"></div>
+            <!-- floating badge -->
+            <div class="absolute top-1/3 right-5 lg:right-20 z-20 rotate-3 bg-white/20 backdrop-blur-md border border-white/30 text-white px-6 py-3 rounded-2xl shadow-2xl animate-float hidden lg:block">
+                <p class="text-sm font-mono">✦ since 2024</p>
             </div>
-            <div class="relative h-full max-w-7xl mx-auto px-6 flex flex-col justify-center items-start">
+            <div class="relative z-20 h-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col justify-center items-start">
                 <div class="max-w-2xl text-white">
-                    <span class="text-soft-gold font-semibold tracking-widest uppercase mb-4 block">Premium Kitchenware</span>
-                    <h2 class="serif-heading text-5xl md:text-7xl font-light mb-6 leading-tight">Elevate Your Culinary Experience</h2>
-                    <p class="text-lg md:text-xl text-slate-200 mb-10 font-light leading-relaxed">
-                        Professional-grade tools designed for the modern home chef. Discover precision, durability, and timeless elegance.
-                    </p>
-                    <div class="flex gap-4">
-                        <button class="bg-primary hover:bg-primary/90 text-slate-900 px-10 py-4 font-bold rounded-lg transition-all transform hover:scale-105">
-                            Shop Now
-                        </button>
-                        <button class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white px-10 py-4 font-bold rounded-lg transition-all">
-                            View Collections
-                        </button>
+                    <span class="text-soft-gold font-semibold tracking-[0.3em] uppercase mb-4 block drop-shadow-lg">premium kitchenware</span>
+                    <h2 class="serif-heading text-5xl sm:text-6xl lg:text-7xl font-light mb-6 leading-[1.1] drop-shadow-2xl animate-slide-up" style="animation-delay: 0.1s">Elevate Your <br>Culinary Experience</h2>
+                    <p class="text-lg sm:text-xl text-slate-100 mb-10 font-light max-w-xl drop-shadow animate-slide-up" style="animation-delay: 0.2s">Professional‑grade tools designed for the modern home chef. Precision, durability, timeless elegance.</p>
+                    <div class="flex flex-wrap gap-4 animate-slide-up" style="animation-delay: 0.3s">
+                        <button class="bg-primary hover:bg-primary/90 text-slate-900 px-8 sm:px-10 py-4 font-bold rounded-full shadow-2xl shadow-primary/30 transition-all duration-300 hover:scale-105 active:scale-95">Shop Now</button>
+                        <button class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white px-8 sm:px-10 py-4 font-bold rounded-full transition-all duration-300 hover:scale-105">View Collections</button>
                     </div>
                 </div>
             </div>
+            <!-- scroll indicator -->
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 animate-bounce">
+                <span class="material-symbols-outlined text-white text-3xl">expand_more</span>
+            </div>
         </section>
 
-        <!-- Featured Categories -->
-        <section class="py-24 max-w-7xl mx-auto px-6">
-            <div class="flex justify-between items-end mb-12">
+        <!-- ===== CATEGORIES (with image reveal) ===== -->
+        <section class="py-28 max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-end mb-16">
                 <div>
-                    <h3 class="serif-heading text-4xl font-light dark:text-white">Shop by Category</h3>
-                    <div class="h-1 w-20 bg-primary mt-4"></div>
+                    <h3 class="serif-heading text-4xl sm:text-5xl font-light dark:text-white">Shop by Category</h3>
+                    <div class="h-1 w-24 bg-primary mt-5 rounded-full"></div>
                 </div>
-                <a class="text-sm font-semibold uppercase tracking-widest text-slate-500 hover:text-primary flex items-center gap-2" href="#">
-                    See All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                <a class="text-sm font-semibold uppercase tracking-widest text-slate-500 hover:text-primary flex items-center gap-2 transition group" href="#">
+                    See All <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition">arrow_forward</span>
                 </a>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
                 <!-- Cookware -->
-                <div class="group relative overflow-hidden rounded-xl aspect-[4/5] cursor-pointer">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Close up of a stainless steel skillet with vegetables" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCmAFJUTGC8b57q46quF6vBEl2mVrzhi7S--qdFtDWAE-S5ig-Ooe5Qk3spE-6zADMNJPXEAVA_izNFJoZ8H6Cj_SulqF95ac4cCA-j8DUS26F0yKYFm2yvu5gUEfb1udCuhvQFnAIwwnXXfpTY5SnAOT2P2T50mvvKoMT5qeq0lP0bW8Bh_LH9sjtsaaWdOnfV1HiKEfgHqZQdtIbl5lwYBiBafiQe8nXe-2K74kpqSbfaTn51E5QcfHE_dcn-xaqBl3DapwcXYQ');"></div>
-                    <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-500"></div>
-                    <div class="absolute bottom-0 left-0 p-8 w-full translate-y-2 group-hover:translate-y-0 transition-transform">
-                        <h4 class="text-white text-3xl font-light serif-heading mb-2">Cookware</h4>
-                        <p class="text-white/80 text-sm opacity-0 group-hover:opacity-100 transition-opacity">Precision forged pans & pots</p>
+                <a href="#" class="group relative overflow-hidden rounded-3xl aspect-[3/4] cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1584990347449-a7aa6c30f785?q=80&w=1974&auto=format&fit=crop" alt="Stainless steel skillet with vegetables" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-8 w-full translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                        <h4 class="text-white text-3xl sm:text-4xl font-light serif-heading mb-2">Cookware</h4>
+                        <p class="text-white/80 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">Precision forged pans & pots</p>
                     </div>
-                </div>
+                </a>
                 <!-- Bakery -->
-                <div class="group relative overflow-hidden rounded-xl aspect-[4/5] cursor-pointer">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Artisanal wooden rolling pin on a flour-dusted surface" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBmz1mDQL-OZOdusYrpdmh6eUn7di5YPRY4VSmAUMmA8ixCZmjbouJa3TEUS8kCZPBiIG_BU05PIBHdaSM43omWtNb2xTRahIaJieAmEtnP2LTQC6kphFoHJwuUhUVD2qn4glZsmRm1zvGrDEnNM1vxa0b19NdKOlWnkR9jGklH1d0G7l7ODEkeKFXG5fFUhcxZzNBGrfguPLxfiIQGr7fwwbGgZbpECRfyPpaJaWyvB-KKwPzJ7XCoBjHu1OmwYJUsaHB3g0MKjA');"></div>
-                    <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-500"></div>
-                    <div class="absolute bottom-0 left-0 p-8 w-full translate-y-2 group-hover:translate-y-0 transition-transform">
-                        <h4 class="text-white text-3xl font-light serif-heading mb-2">Bakery</h4>
-                        <p class="text-white/80 text-sm opacity-0 group-hover:opacity-100 transition-opacity">Professional baking accessories</p>
+                <a href="#" class="group relative overflow-hidden rounded-3xl aspect-[3/4] cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=2070&auto=format&fit=crop" alt="Rolling pin on flour dusted surface" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-8 w-full translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                        <h4 class="text-white text-3xl sm:text-4xl font-light serif-heading mb-2">Bakery</h4>
+                        <p class="text-white/80 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">Professional baking accessories</p>
                     </div>
-                </div>
+                </a>
                 <!-- Tabletop -->
-                <div class="group relative overflow-hidden rounded-xl aspect-[4/5] cursor-pointer">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Elegantly set dinner table with ceramic plates" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAtsXMRhvw0YKQ6CuMpx4koEBguEic1fJmNcbId1WqxmFPG4lKzoEff-0icNrEfevQ5lFFfMDQPYmgoCtZwgs0kycUzHO0yxz3DtOLBvgNm5AzyCWXJDeQLvxtok0Ny-YOEcAHSJstKqB4yy21rw2bA-X5sMN-3eHYg1OLx3NgK1BMsnnw6W-foiffJW30YlzqhQ_-JxSB9z0w4NAoU_Xjb5Sjuc4iwb-zv0Jq4lc--oBYhHPdLTuortIIex1oelmWneUPIHk2eOw');"></div>
-                    <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-500"></div>
-                    <div class="absolute bottom-0 left-0 p-8 w-full translate-y-2 group-hover:translate-y-0 transition-transform">
-                        <h4 class="text-white text-3xl font-light serif-heading mb-2">Tabletop</h4>
-                        <p class="text-white/80 text-sm opacity-0 group-hover:opacity-100 transition-opacity">Fine ceramics and flatware</p>
+                <a href="#" class="group relative overflow-hidden rounded-3xl aspect-[3/4] cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?q=80&w=2070&auto=format&fit=crop" alt="Elegant table setting with ceramics" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-8 w-full translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                        <h4 class="text-white text-3xl sm:text-4xl font-light serif-heading mb-2">Tabletop</h4>
+                        <p class="text-white/80 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">Fine ceramics & flatware</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- ===== TRENDING NOW (cards with glassmorphism hover) ===== -->
+        <section class="bg-slate-100 dark:bg-slate-900/50 py-28 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-14">
+                <h3 class="serif-heading text-4xl sm:text-5xl font-light dark:text-white mb-3">Trending Now</h3>
+                <p class="text-slate-500 uppercase tracking-[0.3em] text-xs font-bold">The season's most wanted pieces</p>
+            </div>
+            <div class="flex gap-6 sm:gap-8 px-4 sm:px-6 max-w-7xl mx-auto overflow-x-auto no-scrollbar pb-10 snap-x">
+                <!-- Product 1 -->
+                <div class="min-w-[280px] sm:min-w-[340px] bg-background-light dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group snap-start">
+                    <div class="aspect-square relative overflow-hidden">
+                        <div class="absolute top-4 left-4 z-10 bg-primary text-slate-900 text-xs font-bold px-4 py-2 rounded-full uppercase">Best Seller</div>
+                        <img src="https://images.unsplash.com/photo-1584999734841-1550ad6f9e7a?q=80&w=1974&auto=format&fit=crop" alt="Copper pot set" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <button class="absolute bottom-4 right-4 bg-white dark:bg-slate-700 p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-110" aria-label="Quick add">
+                            <span class="material-symbols-outlined text-slate-900 dark:text-white">add_shopping_cart</span>
+                        </button>
+                        <!-- wishlist icon -->
+                        <button class="absolute top-4 right-4 bg-white/80 dark:bg-slate-800/80 p-2 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 backdrop-blur-sm">
+                            <span class="material-symbols-outlined text-lg">favorite</span>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-xs text-soft-gold font-bold uppercase mb-2">Copper Series</p>
+                        <h5 class="text-lg font-bold mb-3">Signature Copper Pot Set</h5>
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl font-medium text-slate-900 dark:text-white">$449</span>
+                            <span class="text-sm text-slate-400 line-through">$599</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Product 2 -->
+                <div class="min-w-[280px] sm:min-w-[340px] bg-background-light dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group snap-start">
+                    <div class="aspect-square relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1594046243099-6d9b9f7b8b9b?q=80&w=2070&auto=format&fit=crop" alt="Ceramic knife block" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <button class="absolute bottom-4 right-4 bg-white dark:bg-slate-700 p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                            <span class="material-symbols-outlined text-slate-900 dark:text-white">add_shopping_cart</span>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-xs text-soft-gold font-bold uppercase mb-2">Ceramic Chef</p>
+                        <h5 class="text-lg font-bold mb-3">White Ceramic Knife Block</h5>
+                        <span class="text-2xl font-medium">$189</span>
+                    </div>
+                </div>
+                <!-- Product 3 -->
+                <div class="min-w-[280px] sm:min-w-[340px] bg-background-light dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group snap-start">
+                    <div class="aspect-square relative overflow-hidden">
+                        <div class="absolute top-4 left-4 z-10 bg-charcoal text-white text-xs font-bold px-4 py-2 rounded-full uppercase">Limited</div>
+                        <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?q=80&w=2070&auto=format&fit=crop" alt="Matte black bowls" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <button class="absolute bottom-4 right-4 bg-white dark:bg-slate-700 p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                            <span class="material-symbols-outlined text-slate-900 dark:text-white">add_shopping_cart</span>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-xs text-soft-gold font-bold uppercase mb-2">Noir Collection</p>
+                        <h5 class="text-lg font-bold mb-3">Matte Black Prep Bowl Set</h5>
+                        <span class="text-2xl font-medium">$75</span>
+                    </div>
+                </div>
+                <!-- Product 4 -->
+                <div class="min-w-[280px] sm:min-w-[340px] bg-background-light dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group snap-start">
+                    <div class="aspect-square relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1520975954732-35dd22299614?q=80&w=1974&auto=format&fit=crop" alt="Espresso machine" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <button class="absolute bottom-4 right-4 bg-white dark:bg-slate-700 p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                            <span class="material-symbols-outlined text-slate-900 dark:text-white">add_shopping_cart</span>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-xs text-soft-gold font-bold uppercase mb-2">Morning Ritual</p>
+                        <h5 class="text-lg font-bold mb-3">Artisan Espresso Machine</h5>
+                        <span class="text-2xl font-medium">$1,250</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Trending Now -->
-        <section class="bg-slate-100 dark:bg-slate-900/50 py-24 overflow-hidden">
-            <div class="max-w-7xl mx-auto px-6 mb-12">
-                <h3 class="serif-heading text-4xl font-light dark:text-white mb-2">Trending Now</h3>
-                <p class="text-slate-500 uppercase tracking-widest text-xs font-bold">The season's most wanted pieces</p>
-            </div>
-            <div class="flex gap-8 px-6 max-w-7xl mx-auto overflow-x-auto no-scrollbar pb-8">
-                <!-- Product Card 1 -->
-                <div class="min-w-[320px] bg-background-light dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow group">
-                    <div class="aspect-square relative overflow-hidden">
-                        <div class="absolute top-4 left-4 z-10 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase">Best Seller</div>
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="A set of premium copper pots with lids" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDqGg9Udx1fci50WshYtV0r3E669XbDOrd_RvMZiVRiNDUMBjfqb3LGOc74J1f1Y1318ZeOtmgRgonDgjNyf4HbVijELXIJOY4kfFehAzgi3Iw9IaTVNZWGe1ZK8mwYoGiLCltxqrtw8v1M61ywfIhfbvkJ0JMHKwgFqEhzMiUEeZJiKnTv3n1PUC3IULei1-uj8oZgysglZuvzrgHVNTwDNYUlDfC5IH_fRQhV1H5MkmXLEY7xzKjOG47uQpB1eiZ0GUKJu9ArTA');"></div>
-                        <button class="absolute bottom-4 right-4 bg-white/90 dark:bg-slate-700/90 backdrop-blur p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0">
-                            <span class="material-symbols-outlined text-slate-900 dark:text-white">add_shopping_cart</span>
-                        </button>
-                    </div>
-                    <div class="p-6">
-                        <p class="text-xs text-soft-gold font-bold uppercase mb-1">Copper Series</p>
-                        <h5 class="text-lg font-bold mb-2">Signature Copper Pot Set</h5>
-                        <div class="flex items-center gap-4">
-                            <span class="text-xl font-medium text-slate-900 dark:text-white">$449.00</span>
-                            <span class="text-sm text-slate-400 line-through">$599.00</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Product Card 2 -->
-                <div class="min-w-[320px] bg-background-light dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow group">
-                    <div class="aspect-square relative overflow-hidden">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="A minimal white ceramic knife block with wooden handle knives" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAnzYBaQcO-OCUKZXXulmjrumfr0p0EfoPHf-mBFslywIXXvtTXPlVlMR-fYFOUyUSC8EuYNBhW7gvlIUFhlaR9mLi4z5p9wqNY2ComGVImosy6DMnB2CM4AoGiljpKu9LEpRMPKKRae5g8rvKkOI7nTCwI7qwWIeOXTMWXU-nYssF5veY2CIVK-KH2_H5AIgHlLqYBP1xYdlkKW2v5u865OM0TIGuv2bzryEjAoWbVHlHFgSFn3JyrDT9PXx-p3l1sIaIV4CvFuA');"></div>
-                        <button class="absolute bottom-4 right-4 bg-white/90 dark:bg-slate-700/90 backdrop-blur p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0">
-                            <span class="material-symbols-outlined text-slate-900 dark:text-white">add_shopping_cart</span>
-                        </button>
-                    </div>
-                    <div class="p-6">
-                        <p class="text-xs text-soft-gold font-bold uppercase mb-1">Ceramic Chef</p>
-                        <h5 class="text-lg font-bold mb-2">White Ceramic Knife Block</h5>
-                        <div class="flex items-center gap-4">
-                            <span class="text-xl font-medium text-slate-900 dark:text-white">$189.00</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Product Card 3 -->
-                <div class="min-w-[320px] bg-background-light dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow group">
-                    <div class="aspect-square relative overflow-hidden">
-                        <div class="absolute top-4 left-4 z-10 bg-slate-900 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase">Limited</div>
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Handcrafted matte black ceramic bowl" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB0nIiePJxeXFaNjSAxC29bDViyT2KMJEGpYK6aaRP9PoZOmKw20U78r5zSsVa7q7YKFyQyVePZd0pGSZoHySzCpMw3vaG8do7fvxiRiBJXqtkR2kb8dLwEDWSF7oT_pCgMf8wrN-SMW-U7pD2UD_wueVPiLwmnAL1G8XA9FdogUSOH65HhA7VUoSWgkq15FVcdQIqIIrwiwgeBvKzuaI49seXEJeAI7vicWXkpT3PeyVFb3CXWEH-onBgLIXlX02Wg4wd1NqFpJw');"></div>
-                        <button class="absolute bottom-4 right-4 bg-white/90 dark:bg-slate-700/90 backdrop-blur p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0">
-                            <span class="material-symbols-outlined text-slate-900 dark:text-white">add_shopping_cart</span>
-                        </button>
-                    </div>
-                    <div class="p-6">
-                        <p class="text-xs text-soft-gold font-bold uppercase mb-1">Noir Collection</p>
-                        <h5 class="text-lg font-bold mb-2">Matte Black Prep Bowl Set</h5>
-                        <div class="flex items-center gap-4">
-                            <span class="text-xl font-medium text-slate-900 dark:text-white">$75.00</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Product Card 4 -->
-                <div class="min-w-[320px] bg-background-light dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow group">
-                    <div class="aspect-square relative overflow-hidden">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Vintage style professional espresso machine" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDyty7TXsI6z1nW-l5vTqpFRohF5BucIY2k8tdGtbgPrgRCsQwgWvksI4LEs8OrTZxOCswJlKpESifWbRt-JhxmKExpZDHOCadTKNvkuVxQLbrLVJz71xIiF86wX-_EGeZt4OHLEoZTWl9H4iaA30UJ_0ZewkO48HSqFHVhXC9k_eYeXEgb0W3bdAUTnXVQm7uMCHdiJuaO4SF6Y7rSCJHqo-LnrdpsWflcy37yPX2NuUzzB7dVQB8etCmhbRYCe7vN4o_PDsln0Q');"></div>
-                        <button class="absolute bottom-4 right-4 bg-white/90 dark:bg-slate-700/90 backdrop-blur p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0">
-                            <span class="material-symbols-outlined text-slate-900 dark:text-white">add_shopping_cart</span>
-                        </button>
-                    </div>
-                    <div class="p-6">
-                        <p class="text-xs text-soft-gold font-bold uppercase mb-1">Morning Ritual</p>
-                        <h5 class="text-lg font-bold mb-2">Artisan Espresso Machine</h5>
-                        <div class="flex items-center gap-4">
-                            <span class="text-xl font-medium text-slate-900 dark:text-white">$1,250.00</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Newsletter / Footer -->
-        <section class="py-24 bg-white dark:bg-background-dark">
-            <div class="max-w-4xl mx-auto px-6 text-center">
-                <h3 class="serif-heading text-4xl font-light mb-4 dark:text-white">Join the Connoisseur Circle</h3>
-                <p class="text-slate-500 mb-10 max-w-xl mx-auto">Get exclusive early access to new collections, seasonal recipes, and styling tips from expert chefs.</p>
-                <form class="flex flex-col md:flex-row gap-4 max-w-lg mx-auto">
-                    <input class="flex-1 rounded-lg border-slate-200 dark:border-slate-800 dark:bg-slate-900 focus:ring-primary focus:border-primary px-6 py-4" placeholder="Your email address" type="email"/>
-                    <button class="bg-slate-900 dark:bg-primary dark:text-slate-900 text-white px-8 py-4 rounded-lg font-bold hover:bg-slate-800 transition-colors uppercase tracking-widest text-sm" type="submit">Subscribe</button>
+        <!-- ===== NEWSLETTER (with floating paper plane) ===== -->
+        <section class="py-32 bg-white dark:bg-background-dark relative overflow-hidden">
+            <div class="absolute -right-20 top-10 rotate-12 text-slate-200 dark:text-slate-800 text-9xl opacity-20">✉︎</div>
+            <div class="max-w-3xl mx-auto px-4 text-center relative">
+                <span class="material-symbols-outlined text-primary text-5xl mb-4">mark_email_read</span>
+                <h3 class="serif-heading text-4xl sm:text-5xl font-light mb-4 dark:text-white">Join the Connoisseur Circle</h3>
+                <p class="text-slate-500 mb-12 max-w-2xl mx-auto text-lg">Get exclusive early access to new collections, seasonal recipes, and styling tips from expert chefs.</p>
+                <form class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+                    <input class="flex-1 rounded-full border-slate-200 dark:border-slate-800 dark:bg-slate-900 focus:ring-4 focus:ring-primary/20 px-8 py-5 text-base" placeholder="Your email address" type="email" required/>
+                    <button class="bg-slate-900 dark:bg-primary dark:text-slate-900 text-white px-10 py-5 rounded-full font-bold hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 uppercase tracking-widest text-sm shadow-xl" type="submit">Subscribe</button>
                 </form>
             </div>
         </section>
     </main>
 
-    <footer class="bg-slate-900 text-slate-400 py-16">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
-            <div class="col-span-1 md:col-span-1">
-                <div class="flex items-center gap-3 text-white mb-6">
-                    <span class="material-symbols-outlined text-primary">skillet</span>
+    <!-- ===== FOOTER (elevated) ===== -->
+    <footer class="bg-slate-900 text-slate-400 pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+            <div>
+                <div class="flex items-center gap-3 text-white mb-7">
+                    <span class="material-symbols-outlined text-primary text-3xl">skillet</span>
                     <span class="text-xl font-black uppercase">All Things Home</span>
                 </div>
                 <p class="text-sm leading-relaxed">Defining the modern culinary aesthetic since 2024. Our curated selection brings professional performance to your home kitchen.</p>
+                <div class="flex gap-5 mt-8">
+                    <a href="#" class="hover:text-primary transition-colors"><span class="material-symbols-outlined">share</span></a>
+                    <a href="#" class="hover:text-primary transition-colors"><span class="material-symbols-outlined">public</span></a>
+                    <a href="#" class="hover:text-primary transition-colors"><span class="material-symbols-outlined">camera_indoor</span></a>
+                </div>
             </div>
             <div>
-                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Shop</h4>
+                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-7">Shop</h4>
                 <ul class="space-y-4 text-sm">
-                    <li><a class="hover:text-primary transition-colors" href="#">Cookware</a></li>
-                    <li><a class="hover:text-primary transition-colors" href="#">Bakeware</a></li>
-                    <li><a class="hover:text-primary transition-colors" href="#">Cutlery</a></li>
-                    <li><a class="hover:text-primary transition-colors" href="#">Tabletop</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Cookware</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Bakeware</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Cutlery</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Tabletop</a></li>
                 </ul>
             </div>
             <div>
-                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Support</h4>
+                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-7">Support</h4>
                 <ul class="space-y-4 text-sm">
-                    <li><a class="hover:text-primary transition-colors" href="#">Shipping & Returns</a></li>
-                    <li><a class="hover:text-primary transition-colors" href="#">Care Guides</a></li>
-                    <li><a class="hover:text-primary transition-colors" href="#">Store Locator</a></li>
-                    <li><a class="hover:text-primary transition-colors" href="#">Contact Us</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Shipping & Returns</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Care Guides</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Store Locator</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Contact Us</a></li>
                 </ul>
             </div>
             <div>
-                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-6">Follow Us</h4>
-                <div class="flex gap-4">
-                    <a class="hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">share</span></a>
-                    <a class="hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">public</span></a>
-                    <a class="hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">camera_indoor</span></a>
-                </div>
-                <div class="mt-8">
-                    <p class="text-xs uppercase font-bold text-slate-500 mb-2">Location</p>
-                    <p class="text-sm">6474 Zimta Park 2, Mutare, Zimbabwe</p>
+                <h4 class="text-white font-bold uppercase text-xs tracking-[0.2em] mb-7">Location</h4>
+                <p class="text-sm mb-6">6474 Zimta Park 2, Mutare, Zimbabwe</p>
+                <div class="border-t border-slate-800 pt-6 mt-6 text-xs tracking-widest uppercase">
+                    © 2026 All Things Home. All rights reserved.
                 </div>
             </div>
-        </div>
-        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 text-center text-xs tracking-widest uppercase">
-            © 2026 All Things Home. All rights reserved.
         </div>
     </footer>
+
+    <!-- Back to top button -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-slate-900 p-4 rounded-full shadow-2xl opacity-0 invisible transition-all duration-300 hover:scale-110 z-50">
+        <span class="material-symbols-outlined">arrow_upward</span>
+    </button>
 
     <script src="site.js"></script>
 </body>
