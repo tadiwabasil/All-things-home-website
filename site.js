@@ -150,16 +150,238 @@ function shake(el) {
     el.focus();
 }
 
-/* ===== Product rail arrows ===== */
+/* ===== 3D Stage Rail =====
+   - Cards rotate/scale based on horizontal distance from rail center
+   - Inner image parallaxes opposite the offset (peeking-window feel)
+   - Drag-to-scroll on desktop
+   - Active card drives the big serif headline (crossfade swap)
+   - Pagination dots + arrows + keyboard support */
 function initProductRail() {
     const rail = document.getElementById('product-rail');
+    if (!rail) return;
+    const cards = Array.from(rail.querySelectorAll('.stage-card'));
+    if (!cards.length) return;
+
     const prev = document.getElementById('rail-prev');
     const next = document.getElementById('rail-next');
-    if (!rail) return;
+    const dotsWrap = document.getElementById('stage-dots');
+    const headline = document.querySelector('.stage-headline');
+    const titleEl = document.getElementById('stage-title');
+    const counterEl = document.querySelector('.stage-counter');
 
-    const step = () => Math.round(rail.clientWidth * 0.8);
-    prev?.addEventListener('click', () => rail.scrollBy({ left: -step(), behavior: 'smooth' }));
-    next?.addEventListener('click', () => rail.scrollBy({ left: step(), behavior: 'smooth' }));
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const MAX_ROT = 22;      // deg
+    const MAX_SCALE_DROP = 0.18;
+    const MAX_OPACITY_DROP = 0.55;
+
+    /* ----- Dots ----- */
+    if (dotsWrap) {
+        cards.forEach((card, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'stage-dot';
+            dot.setAttribute('role', 'tab');
+            dot.setAttribute('aria-label', `Go to ${card.dataset.title || 'product ' + (i + 1)}`);
+            dot.addEventListener('click', () => scrollToCard(i));
+            dotsWrap.appendChild(dot);
+        });
+    }
+    const dots = dotsWrap ? Array.from(dotsWrap.querySelectorAll('.stage-dot')) : [];
+
+    /* ----- Initial title ----- */
+    let activeIndex = 0;
+    if (titleEl) titleEl.textContent = cards[0].dataset.title || '';
+
+    /* ----- Per-frame transform update ----- */
+    let raf = null;
+    function update() {
+        raf = null;
+        const railRect = rail.getBoundingClientRect();
+        const center = railRect.left + railRect.width / 2;
+        const half = railRect.width / 2;
+
+        let bestIndex = 0;
+        let bestDist = Infinity;
+
+        cards.forEach((card, i) => {
+            const r = card.getBoundingClientRect();
+            const cardCenter = r.left + r.width / 2;
+            const raw = (cardCenter - center) / half;          // -1..1 roughly
+            const t = Math.max(-1.4, Math.min(1.4, raw));
+            const abs = Math.abs(t);
+
+            if (!reduceMotion) {
+                const rotY = -t * MAX_ROT;
+                const scale = 1 - abs * MAX_SCALE_DROP;
+                const opacity = 1 - abs * MAX_OPACITY_DROP;
+                const z = -abs * 80;
+                card.style.transform =
+                    `translate3d(0, ${abs * 6}px, ${z}px) rotateY(${rotY}deg) scale(${scale})`;
+                card.style.opacity = opacity.toFixed(3);
+                card.style.setProperty('--parallax', t.toFixed(3));
+                card.style.setProperty('--shine', (t * 0.6).toFixed(3));
+            }
+
+            const focused = abs < 0.18;
+            card.classList.toggle('is-focused', focused);
+
+            const distFromCenter = Math.abs(cardCenter - center);
+            if (distFromCenter < bestDist) {
+                bestDist = distFromCenter;
+                bestIndex = i;
+            }
+        });
+
+        if (bestIndex !== activeIndex) setActive(bestIndex);
+    }
+
+    function schedule() {
+        if (raf == null) raf = requestAnimationFrame(update);
+    }
+
+    /* ----- Active state (title + dots) ----- */
+    function setActive(i) {
+        activeIndex = i;
+        dots.forEach((d, k) => d.classList.toggle('is-active', k === i));
+        if (counterEl) {
+            const total = String(cards.length).padStart(2, '0');
+            const cur = String(i + 1).padStart(2, '0');
+            counterEl.textContent = `${cur} / ${total}`;
+        }
+        if (titleEl && headline) {
+            const newTitle = cards[i].dataset.title || '';
+            if (newTitle && newTitle !== titleEl.textContent) {
+                headline.classList.add('is-swapping');
+                setTimeout(() => {
+                    titleEl.textContent = newTitle;
+                    headline.classList.remove('is-swapping');
+                }, 220);
+            }
+        }
+    }
+
+    /* ----- Scroll to a card by index ----- */
+    function scrollToCard(i) {
+        const card = cards[i];
+        if (!card) return;
+        const railRect = rail.getBoundingClientRect();
+        const r = card.getBoundingClientRect();
+        const delta = (r.left + r.width / 2) - (railRect.left + railRect.width / 2);
+        rail.scrollBy({ left: delta, behavior: 'smooth' });
+    }
+
+    /* ----- Listeners ----- */
+    rail.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+
+    /* ----- Arrows ----- */
+    prev?.addEventListener('click', () => scrollToCard(Math.max(0, activeIndex - 1)));
+    next?.addEventListener('click', () => scrollToCard(Math.min(cards.length - 1, activeIndex + 1)));
+
+    /* ----- Keyboard nav when rail is focused ----- */
+    rail.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') { e.preventDefault(); scrollToCard(Math.min(cards.length - 1, activeIndex + 1)); }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); scrollToCard(Math.max(0, activeIndex - 1)); }
+    });
+
+    /* ----- Click any card to focus it ----- */
+    cards.forEach((card, i) => {
+        card.addEventListener('click', (e) => {
+            if (rail.classList.contains('dragging')) { e.preventDefault(); return; }
+            if (i !== activeIndex) scrollToCard(i);
+        });
+    });
+
+    /* ----- Drag-to-scroll (mouse) ----- */
+    let isDown = false;
+    let startX = 0;
+    let startScroll = 0;
+    let moved = 0;
+
+    rail.addEventListener('mousedown', (e) => {
+        isDown = true;
+        moved = 0;
+        startX = e.pageX;
+        startScroll = rail.scrollLeft;
+    });
+    window.addEventListener('mouseup', () => {
+        if (!isDown) return;
+        isDown = false;
+        // small grace so click after a drag is suppressed
+        if (moved > 6) {
+            rail.classList.add('dragging');
+            setTimeout(() => rail.classList.remove('dragging'), 50);
+            // snap to nearest after a drag
+            scrollToCard(activeIndex);
+        } else {
+            rail.classList.remove('dragging');
+        }
+    });
+    window.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        const dx = e.pageX - startX;
+        moved = Math.max(moved, Math.abs(dx));
+        if (moved > 4) rail.classList.add('dragging');
+        rail.scrollLeft = startScroll - dx;
+    });
+
+    /* ----- Autoplay ----- */
+    const AUTOPLAY_MS = 4200;
+    let autoplayTimer = null;
+    let userPaused = false;
+    let inView = false;
+
+    function advance() {
+        const nextIdx = (activeIndex + 1) % cards.length;
+        scrollToCard(nextIdx);
+    }
+    function startAutoplay() {
+        if (reduceMotion || userPaused || !inView) return;
+        stopAutoplay();
+        autoplayTimer = setInterval(advance, AUTOPLAY_MS);
+    }
+    function stopAutoplay() {
+        if (autoplayTimer) { clearInterval(autoplayTimer); autoplayTimer = null; }
+    }
+    function pauseTemporarily() {
+        stopAutoplay();
+        // restart after a short idle window so user interaction takes priority
+        clearTimeout(pauseTemporarily._t);
+        pauseTemporarily._t = setTimeout(() => { if (!userPaused) startAutoplay(); }, 6000);
+    }
+
+    // pause on hover / focus / drag
+    rail.addEventListener('mouseenter', () => { userPaused = true; stopAutoplay(); });
+    rail.addEventListener('mouseleave', () => { userPaused = false; startAutoplay(); });
+    rail.addEventListener('focusin',  () => { userPaused = true; stopAutoplay(); });
+    rail.addEventListener('focusout', () => { userPaused = false; startAutoplay(); });
+    // any manual interaction (dot, arrow, drag, click) defers the next tick
+    [prev, next, ...dots].forEach(el => el?.addEventListener('click', pauseTemporarily));
+    rail.addEventListener('mousedown', pauseTemporarily);
+    rail.addEventListener('touchstart', pauseTemporarily, { passive: true });
+    // pause when tab not visible
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stopAutoplay(); else startAutoplay();
+    });
+
+    // only autoplay while the rail is on screen
+    if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                inView = entry.isIntersecting;
+                if (inView) startAutoplay(); else stopAutoplay();
+            });
+        }, { threshold: 0.25 });
+        io.observe(rail);
+    } else {
+        inView = true;
+    }
+
+    /* ----- Initial paint ----- */
+    requestAnimationFrame(() => {
+        // place first card at center on load
+        scrollToCard(0);
+        schedule();
+    });
 }
 
 /* ===== Animated build-progress bar ===== */

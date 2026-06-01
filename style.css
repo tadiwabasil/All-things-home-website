@@ -138,21 +138,217 @@ button:focus, input:focus {
 }
 
 /* ===== Product cards (no card chrome — editorial style) ===== */
-.product-card {
-    flex: 0 0 78%;
-    max-width: 280px;
-    cursor: pointer;
+/* ===== 3D STAGE RAIL =====
+   Cards arranged in a horizontal scroller. The card closest to the
+   viewport's horizontal center is "focused": full scale, head-on.
+   Side cards tilt away on rotateY, dim, and their inner images
+   parallax horizontally — like windows you're walking past. */
+
+.stage-rail-wrap {
+    perspective: 1800px;
+    perspective-origin: 50% 55%;
 }
+
+.stage-rail {
+    display: flex;
+    gap: clamp(1rem, 2.5vw, 2.25rem);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    /* end-padding so first and last cards can sit dead-center */
+    padding: 1.5rem max(1.25rem, calc(50vw - 9.5rem)) 2rem;
+    cursor: grab;
+    transform-style: preserve-3d;
+    overscroll-behavior-x: contain;
+}
+.stage-rail.dragging { cursor: grabbing; scroll-behavior: auto; }
+.stage-rail:focus-visible { outline: none; }
+
 @media (min-width: 640px) {
-    .product-card { flex-basis: 320px; max-width: 320px; }
+    .stage-rail { padding-left: max(2rem, calc(50vw - 11rem)); padding-right: max(2rem, calc(50vw - 11rem)); }
 }
 @media (min-width: 1024px) {
-    .product-card { flex-basis: 340px; max-width: 340px; }
+    .stage-rail { padding-left: max(2rem, calc(50vw - 13rem)); padding-right: max(2rem, calc(50vw - 13rem)); }
 }
-.product-card img {
-    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+.stage-card {
+    flex: 0 0 18rem;
+    scroll-snap-align: center;
+    transform-origin: center center;
+    transition:
+        transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform, opacity;
 }
-.product-card:hover img { transform: scale(1.05); }
+@media (min-width: 640px) { .stage-card { flex-basis: 21rem; } }
+@media (min-width: 1024px) { .stage-card { flex-basis: 25rem; } }
+
+.stage-card-frame {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    background: linear-gradient(160deg, #e2e8f0, #cbd5e1);
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.06),
+        0 30px 60px -20px rgba(0, 0, 0, 0.18);
+    transition: box-shadow 0.6s ease;
+}
+.dark .stage-card-frame {
+    background: linear-gradient(160deg, #1e293b, #0f172a);
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.3),
+        0 30px 60px -20px rgba(0, 0, 0, 0.6);
+}
+
+.stage-img-wrap {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+.stage-img-wrap img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* inner parallax — JS drives --parallax (-1..1) */
+    transform: translate3d(calc(var(--parallax, 0) * -6%), 0, 0) scale(1.12);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* moving light sweep — reads "premium" */
+.stage-shine {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg,
+        transparent 35%,
+        rgba(255, 255, 255, 0.18) 50%,
+        transparent 65%);
+    transform: translateX(calc(var(--shine, 0) * 100%));
+    opacity: 0;
+    transition: opacity 0.6s ease, transform 0.9s ease;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+}
+
+/* tag pills inside the frame */
+.stage-tag {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 2;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.45rem 0.85rem;
+    border-radius: 9999px;
+    backdrop-filter: blur(8px);
+}
+.stage-tag-primary { background: #17cf54; color: #0f172a; }
+.stage-tag-dark    { background: rgba(15, 23, 42, 0.88); color: #fff; }
+
+/* meta below the frame */
+.stage-meta {
+    padding-top: 1.25rem;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 0.55;
+    transform: translateY(6px);
+}
+.stage-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #d4af37;
+    margin-bottom: 0.5rem;
+}
+.stage-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 0.25rem;
+}
+.dark .stage-name { color: #fff; }
+.stage-detail {
+    font-size: 0.875rem;
+    color: #64748b;
+}
+.dark .stage-detail { color: #94a3b8; }
+
+/* focused state */
+.stage-card.is-focused .stage-meta {
+    opacity: 1;
+    transform: translateY(0);
+}
+.stage-card.is-focused .stage-card-frame {
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.08),
+        0 50px 90px -30px rgba(0, 0, 0, 0.35),
+        0 0 0 1px rgba(23, 207, 84, 0.08);
+}
+.dark .stage-card.is-focused .stage-card-frame {
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.4),
+        0 50px 90px -30px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(23, 207, 84, 0.18);
+}
+.stage-card.is-focused .stage-shine { opacity: 1; }
+
+/* off-focus dim */
+.stage-card:not(.is-focused) {
+    filter: saturate(0.85) brightness(0.92);
+}
+.dark .stage-card:not(.is-focused) {
+    filter: saturate(0.7) brightness(0.7);
+}
+
+/* ===== Headline that crossfades with active card ===== */
+.stage-headline { transition: opacity 0.4s ease; }
+.stage-headline.is-swapping { opacity: 0; transform: translateY(8px); }
+.stage-headline-wrap {
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+.dark .stage-headline-wrap {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ===== Pagination dots ===== */
+.stage-dots {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+.stage-dot {
+    width: 28px;
+    height: 4px;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.15);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.3s ease, width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dark .stage-dot { background: rgba(255, 255, 255, 0.15); }
+.stage-dot.is-active {
+    background: #17cf54;
+    width: 56px;
+}
+.stage-dot:hover { background: rgba(23, 207, 84, 0.6); }
+
+/* reduce-motion friendliness */
+@media (prefers-reduced-motion: reduce) {
+    .stage-card,
+    .stage-img-wrap img,
+    .stage-shine,
+    .stage-meta {
+        transition: none !important;
+    }
+    .stage-card { transform: none !important; }
+}
 
 /* ===== Rail nav buttons ===== */
 .rail-btn {

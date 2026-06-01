@@ -257,68 +257,93 @@
             </div>
         </section>
 
-        <!-- ===== LAUNCH COLLECTION PREVIEW ===== -->
+        <!-- ===== LAUNCH COLLECTION — 3D STAGE RAIL ===== -->
         <section class="relative bg-slate-100 dark:bg-slate-900/50 py-20 sm:py-28 lg:py-32 overflow-hidden">
-            <div class="max-w-7xl mx-auto px-5 sm:px-8 mb-12 sm:mb-16 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+            <div class="max-w-7xl mx-auto px-5 sm:px-8 mb-10 sm:mb-14 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
                 <div class="reveal">
                     <span class="text-xs sm:text-sm font-semibold tracking-[0.3em] uppercase text-primary mb-4 block">Launch lineup</span>
                     <h3 class="serif-heading section-title dark:text-white">The first pieces.</h3>
                 </div>
-                <p class="reveal text-sm text-slate-500 dark:text-slate-400 max-w-xs">Available the day we open. Waitlist members get first dibs.</p>
+                <p class="reveal text-sm text-slate-500 dark:text-slate-400 max-w-xs">Drag, scroll, or tap to explore. Waitlist members get first dibs.</p>
             </div>
 
-            <div class="relative">
-                <div id="product-rail" class="flex gap-5 sm:gap-7 px-5 sm:px-8 max-w-[100rem] mx-auto overflow-x-auto no-scrollbar pb-10 snap-x snap-mandatory scroll-pl-5 sm:scroll-pl-8">
-                    <!-- Product 1 -->
-                    <article class="reveal product-card snap-start">
-                        <div class="aspect-square relative overflow-hidden rounded-2xl bg-slate-200 dark:bg-slate-800">
-                            <span class="absolute top-4 left-4 z-10 bg-primary text-slate-900 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest">Day-One</span>
-                            <img src="images/Pots1.jpeg" alt="Copper pot set" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"/>
+            <!-- focused-product big headline (crossfades with active card) -->
+            <div class="reveal stage-headline-wrap pointer-events-none select-none max-w-7xl mx-auto px-5 sm:px-8 mb-6 sm:mb-10 h-[3.5rem] sm:h-[5rem] lg:h-[6rem] relative">
+                <div class="stage-headline absolute inset-0 flex items-end">
+                    <span class="stage-counter text-[10px] sm:text-xs font-mono text-slate-400 dark:text-slate-500 tracking-[0.3em] mr-4 sm:mr-6 mb-2 sm:mb-3">01 / 04</span>
+                    <h4 id="stage-title" class="serif-heading italic text-3xl sm:text-5xl lg:text-7xl font-light text-slate-900 dark:text-white leading-none transition-all duration-500"></h4>
+                </div>
+            </div>
+
+            <div class="stage-rail-wrap relative">
+                <div id="product-rail" class="stage-rail no-scrollbar" tabindex="0" aria-label="Launch products carousel">
+                    <!-- Product 1 — Pots -->
+                    <article class="stage-card" data-title="Signature Pot Set" data-index="01">
+                        <div class="stage-card-frame">
+                            <span class="stage-tag stage-tag-primary">Day-One</span>
+                            <div class="stage-img-wrap">
+                                <img src="images/Pots1.jpeg" alt="Signature pot set" loading="lazy"/>
+                            </div>
+                            <div class="stage-shine"></div>
                         </div>
-                        <div class="pt-5">
-                            <p class="text-[10px] text-soft-gold font-bold uppercase tracking-[0.25em] mb-2">Pot Series</p>
-                            <h5 class="text-base sm:text-lg font-semibold mb-1 dark:text-white">Signature Pot Set</h5>
-                            <p class="text-sm text-slate-500 dark:text-slate-400">Five pieces · Hand-finished</p>
-                        </div>
-                    </article>
-                    <!-- Product 2 -->
-                    <article class="reveal product-card snap-start" style="--reveal-delay: 80ms">
-                        <div class="aspect-square relative overflow-hidden rounded-2xl bg-slate-200 dark:bg-slate-800">
-                            <img src="images/knife.png" alt="Ceramic knife block" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"/>
-                        </div>
-                        <div class="pt-5">
-                            <p class="text-[10px] text-soft-gold font-bold uppercase tracking-[0.25em] mb-2">Ceramic Chef</p>
-                            <h5 class="text-base sm:text-lg font-semibold mb-1 dark:text-white">White Ceramic Knife Block</h5>
-                            <p class="text-sm text-slate-500 dark:text-slate-400">Seven blades · Forged steel</p>
-                        </div>
-                    </article>
-                    <!-- Product 3 -->
-                    <article class="reveal product-card snap-start" style="--reveal-delay: 160ms">
-                        <div class="aspect-square relative overflow-hidden rounded-2xl bg-slate-200 dark:bg-slate-800">
-                            <span class="absolute top-4 left-4 z-10 bg-charcoal text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest">Limited</span>
-                            <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?q=80&w=2070&auto=format&fit=crop" alt="Matte black prep bowls" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"/>
-                        </div>
-                        <div class="pt-5">
-                            <p class="text-[10px] text-soft-gold font-bold uppercase tracking-[0.25em] mb-2">Noir Collection</p>
-                            <h5 class="text-base sm:text-lg font-semibold mb-1 dark:text-white">Matte Black Prep Bowl Set</h5>
-                            <p class="text-sm text-slate-500 dark:text-slate-400">Four nesting bowls · Stoneware</p>
+                        <div class="stage-meta">
+                            <p class="stage-eyebrow">Forge & Flame</p>
+                            <h5 class="stage-name">Signature Pot Set</h5>
+                            <p class="stage-detail">Five pieces · Hand-finished</p>
                         </div>
                     </article>
-                    <!-- Product 4 -->
-                    <article class="reveal product-card snap-start" style="--reveal-delay: 240ms">
-                        <div class="aspect-square relative overflow-hidden rounded-2xl bg-slate-200 dark:bg-slate-800">
-                            <img src="https://images.unsplash.com/photo-1520975954732-35dd22299614?q=80&w=1974&auto=format&fit=crop" alt="Artisan espresso machine" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"/>
+                    <!-- Product 2 — Home Decor -->
+                    <article class="stage-card" data-title="Hand-Thrown Vessel" data-index="02">
+                        <div class="stage-card-frame">
+                            <div class="stage-img-wrap">
+                                <img src="images/homedecor1.jpeg" alt="Hand-thrown decorative vessel" loading="lazy"/>
+                            </div>
+                            <div class="stage-shine"></div>
                         </div>
-                        <div class="pt-5">
-                            <p class="text-[10px] text-soft-gold font-bold uppercase tracking-[0.25em] mb-2">Morning Ritual</p>
-                            <h5 class="text-base sm:text-lg font-semibold mb-1 dark:text-white">Artisan Espresso Machine</h5>
-                            <p class="text-sm text-slate-500 dark:text-slate-400">Single-group · Hand-built in Italy</p>
+                        <div class="stage-meta">
+                            <p class="stage-eyebrow">Room & Ritual</p>
+                            <h5 class="stage-name">Hand-Thrown Vessel</h5>
+                            <p class="stage-detail">Stoneware · Studio-made</p>
+                        </div>
+                    </article>
+                    <!-- Product 3 — Bedding -->
+                    <article class="stage-card" data-title="Stonewashed Linen Duvet" data-index="03">
+                        <div class="stage-card-frame">
+                            <span class="stage-tag stage-tag-dark">Limited</span>
+                            <div class="stage-img-wrap">
+                                <img src="images/bedding1.jpeg" alt="Stonewashed linen duvet" loading="lazy"/>
+                            </div>
+                            <div class="stage-shine"></div>
+                        </div>
+                        <div class="stage-meta">
+                            <p class="stage-eyebrow">Soft Hours</p>
+                            <h5 class="stage-name">Stonewashed Linen Duvet</h5>
+                            <p class="stage-detail">European flax · King + Queen</p>
+                        </div>
+                    </article>
+                    <!-- Product 4 — Home Decor -->
+                    <article class="stage-card" data-title="Sculpted Brass Object" data-index="04">
+                        <div class="stage-card-frame">
+                            <div class="stage-img-wrap">
+                                <img src="images/homedecor2.jpeg" alt="Sculpted brass decorative object" loading="lazy"/>
+                            </div>
+                            <div class="stage-shine"></div>
+                        </div>
+                        <div class="stage-meta">
+                            <p class="stage-eyebrow">Noir Collection</p>
+                            <h5 class="stage-name">Sculpted Brass Object</h5>
+                            <p class="stage-detail">Cast by hand · One of a series</p>
                         </div>
                     </article>
                 </div>
-                <div class="hidden md:flex justify-end max-w-7xl mx-auto px-5 sm:px-8 gap-3 -mt-2">
-                    <button id="rail-prev" aria-label="Previous" class="rail-btn"><span class="material-symbols-outlined">arrow_back</span></button>
-                    <button id="rail-next" aria-label="Next" class="rail-btn"><span class="material-symbols-outlined">arrow_forward</span></button>
+
+                <!-- Controls: dots + arrows -->
+                <div class="max-w-7xl mx-auto px-5 sm:px-8 mt-8 sm:mt-10 flex items-center justify-between gap-6">
+                    <div id="stage-dots" class="stage-dots" role="tablist" aria-label="Jump to product"></div>
+                    <div class="hidden sm:flex gap-3">
+                        <button id="rail-prev" aria-label="Previous product" class="rail-btn"><span class="material-symbols-outlined">arrow_back</span></button>
+                        <button id="rail-next" aria-label="Next product" class="rail-btn"><span class="material-symbols-outlined">arrow_forward</span></button>
+                    </div>
                 </div>
             </div>
         </section>
