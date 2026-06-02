@@ -105,7 +105,11 @@ function initBackToTop() {
     btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
-/* ===== Waitlist forms (hero + dedicated) ===== */
+/* ===== Waitlist forms (hero + dedicated) =====
+   Validates the email, then opens WhatsApp with a pre-filled message
+   so the customer's email arrives in the business's WhatsApp inbox. */
+const WHATSAPP_NUMBER = '263774412530'; // E.164 without the '+'
+
 function initWaitlistForms() {
     const forms = document.querySelectorAll('#hero-waitlist, #waitlist-form');
     const stored = new Set(JSON.parse(localStorage.getItem('ath_waitlist') || '[]'));
@@ -121,15 +125,42 @@ function initWaitlistForms() {
                 showNotification('Please enter a valid email address', 'error');
                 return;
             }
-            if (stored.has(email)) {
-                showNotification("You're already on the list — see you Autumn 2026.", 'default');
-                form.reset();
+
+            // Build a clear, useful message for the business owner
+            const lines = [
+                "Hi All Things Home! 👋",
+                "",
+                "I'd like to join the waitlist for the online store launch.",
+                "",
+                `📧 Email: ${email}`,
+                "",
+                "Please add me to your early-access list and keep me posted.",
+                "Thank you!"
+            ];
+            const message = encodeURIComponent(lines.join('\n'));
+            const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+
+            // Remember locally so we can show a friendly note on repeat
+            const isRepeat = stored.has(email);
+            if (!isRepeat) {
+                stored.add(email);
+                try { localStorage.setItem('ath_waitlist', JSON.stringify([...stored])); } catch (_) {}
+            }
+
+            // Open WhatsApp in a new tab/app
+            const win = window.open(waUrl, '_blank', 'noopener,noreferrer');
+            if (!win) {
+                // popup blocked — fall back to same-tab navigation
+                window.location.href = waUrl;
                 return;
             }
-            stored.add(email);
-            try { localStorage.setItem('ath_waitlist', JSON.stringify([...stored])); } catch (_) {}
 
-            showNotification("You're on the list. We'll be in touch.", 'success');
+            showNotification(
+                isRepeat
+                    ? "Opening WhatsApp to confirm your details…"
+                    : "Opening WhatsApp — just tap send to join the list.",
+                'success'
+            );
             form.reset();
         });
     });
